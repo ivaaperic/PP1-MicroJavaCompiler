@@ -1,0 +1,352 @@
+package rs.ac.bg.etf.pp1;
+
+import java_cup.runtime.*;
+import org.apache.log4j.*;
+
+// import java.io.*;
+import rs.ac.bg.etf.pp1.ast.*;
+
+
+parser code {:
+	
+	boolean errorDetected;
+	
+	Logger log = Logger.getLogger(getClass());
+   
+   
+    // slede redefinisani metodi za prijavu gresaka radi izmene teksta poruke
+     
+    public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+      done_parsing();
+      report_error(message, info);
+    }
+  
+    public void syntax_error(Symbol cur_token) {
+        report_error("\nSintaksna greska", cur_token);
+    }
+  
+    public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+        report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+    }
+
+    public void report_error(String message, Object info) {
+    	errorDetected = true;
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.error(msg.toString());
+    }
+    
+:}
+
+init with {:
+	errorDetected = false;
+:}
+
+scan with {:
+	Symbol s = this.getScanner().next_token();
+	if (s != null && s.value != null) 
+		log.info(s.toString() + " " + s.value.toString());
+	return s;
+:}
+
+terminal PROG, BREAK, CLASS, ELSE, CONST, IF, WHILE, NEW, PRINT, READ, RETURN, VOID, EXTENDS, CONTINUE, FOREACH;
+terminal EQUALEQUAL, NOTEQUAL, GREATEREQUAL, GREATER, LESSEQUAL, LESS, PLUS, MINUS, PLUSPLUS, MINUSMINUS, EQUAL;
+terminal MUL, DIV, MOD, PIPEPIPE, AMPAMP, SEMI, COLON, COMMA, DOT, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, ARROW;
+terminal FINDANY, FINDANDREPLACE;
+terminal Integer NUMBER;
+terminal String IDENT;
+terminal String CHAR;
+terminal String BOOL;
+
+nonterminal ProgPar, MethodDeclList, ConstDecl, VarDecl, MoreConst, SquareBrackets,
+VarDeclList, Methods, MethodFormPars, MethodVarDecl, Statements, FormPars, 
+FormParsList, Statement, DesignatorStatement,  ExprOrEps, PrintStatNumber, ElseStatement,
+ FactorDesignAct,   Relop, ProgDecl, KrajMetDec,
+ExprAddList, Addop, Mulop, DesignAct, Matched, Unmatched, FormParamOneLParen,
+GlobVarDecl, DesignatorEqualStatement, OutWhile, InWhile, InForeach, OutForeach, KrajPozivaMetode;
+
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, OneConst, VarDeclPom, GlobVarDeclOne, GlobVarDeclMore,
+ MethodDecl, MethodTypeName, FormParam, GlobIdent, VarIdent, Designator;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Expr, ConditionIf, Condition, CondTerm, CondFact, Term, Factor, DesList, ActPars, ActOne;
+
+Program ::= (ProgramIv)PROG ProgName:p ProgPar LBRACE MethodDeclList RBRACE;
+
+ProgName ::= (ProgNameIv) IDENT:progName;
+
+ProgDecl ::=(ProgramConstIv) ConstDecl
+			|
+			(ProgramGlobVarIv) Type:globVarType GlobVarDecl
+			;
+
+ProgPar ::= (ProgramParIv) ProgPar ProgDecl
+			|
+			(NoProgramParIv) /* epsilon */
+			;
+
+MethodDeclList ::= (MethodDeclListIv) MethodDeclList MethodDecl
+			|
+			(NoProgramDeclListIv)/* epsilon */
+			;
+			
+GlobVarDecl ::= (GlobVarDeclMoreIv) GlobVarDeclMore GlobVarDecl
+				|
+				(GlobVarDeclOneIv) GlobVarDeclOne
+				;
+			
+GlobVarDeclOne ::= (GlobalVarDeclOneIv) GlobIdent SquareBrackets SEMI
+			|
+			(ErrorGlobVarDeclSemiIv) error SEMI:l
+		   	{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravne deklaracije globalne promenljive do ; u liniji " + lleft, null);  :}
+			;
+
+GlobVarDeclMore ::= (GlobalVarDeclMoreIv) GlobIdent SquareBrackets COMMA
+			|
+			(ErrorGlobVarDeclCommaIv) error COMMA:l
+		   	{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravne deklaracije globalne promenljive do , u liniji " + lleft, null);  :}
+			;
+			
+GlobIdent ::= (GlobIdentIv) IDENT:globVarName;
+
+ConstDecl ::= (ConstDeclIv) CONST Type:constType OneConst MoreConst SEMI;
+
+MoreConst ::= (MoreConstIv) MoreConst COMMA OneConst
+			|
+			(NoMoreConstIv) /* epsilon */
+			;
+			
+OneConst ::= (NumConstIv) IDENT:constName EQUAL NUMBER:numberConst
+			|
+			(CharConstIv) IDENT:constName EQUAL CHAR:charConst
+			|
+			(BoolConstIv) IDENT:constName EQUAL BOOL:boolConst
+			;
+			
+VarDecl ::= (VarDeclIv) Type:varType VarDeclPom VarDeclList SEMI;
+			
+VarDeclList ::= (VarDeclListIv) VarDeclList COMMA VarDeclPom
+			|
+			(NoVarDeclListIv) /* epsilon */
+			;
+			
+VarDeclPom ::= (VarDeclPomIv) VarIdent SquareBrackets;
+
+VarIdent ::= (VarIdentIv) IDENT:varName;
+
+Methods ::= (MethodsIv) Methods MethodDecl
+			|
+			(NoMethodsIv) /* epsilon */
+			;
+			
+MethodDecl ::= (MethodDeclIv) MethodTypeName LPAREN MethodFormPars MethodVarDecl LBRACE Statements RBRACE;
+
+MethodTypeName ::= (MethodTypeNameVoidIv) VOID IDENT:methName
+			|
+ 			(MethodTypeNameIv) Type:returnType IDENT:methName			
+ 			;
+KrajMetDec ::= (KrajMetDecIv);
+
+MethodFormPars ::= (MethodFormParsIv) FormPars KrajMetDec
+			|
+			(NoMethodFormParsIv) RPAREN KrajMetDec
+			;
+			
+MethodVarDecl ::= (MethodVarDeclIv) MethodVarDecl VarDecl
+			|
+			(NoMethodVarDeclIv) /* epsilon */
+			;
+			
+FormPars ::= (FormParsMoreIv) FormParsList FormPars
+			|
+			(FormParsOneIv) FormParamOneLParen
+			;
+			
+FormParsList ::= (FormParsListIv) FormParam SquareBrackets COMMA
+			|
+			(ErrorFormParsCommaIv) error COMMA:l
+			{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravne deklaracije formalnog parametra do , u liniji " + lleft, null);  :}
+			;
+			
+FormParamOneLParen ::= (FormParamOneLParenIv) FormParam SquareBrackets RPAREN
+			|
+			(ErrorFormParsRParenIv) error RPAREN:l
+			{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravne deklaracije formalnog parametra do ) u liniji " + lleft, null);  :}
+			;
+			
+FormParam ::= (FormParamIv) Type:formParamType IDENT:formParamName;
+
+SquareBrackets ::= (SquareBracketsIv) LBRACK RBRACK
+			|
+			(NoSquareBracketsIv) /* epsilon */
+			;
+			
+Statement ::= (StatementMatchedIv) Matched 
+			| 
+			(StatementUnmatchedIv) Unmatched;
+
+Unmatched ::= (UnmatchedCondIfIv) IF LPAREN ConditionIf:cifonly Statement
+			|
+			(UnmachedCondIfElseIv) IF LPAREN ConditionIf:cifstm Matched ElseStatement Unmatched
+			|
+			(UnmatchedWhileIv) WHILE LPAREN Condition:cwhile RPAREN InWhile Unmatched OutWhile
+			;
+			
+Matched ::= (MatchedDesignIv) DesignatorStatement
+			|
+			(MatchedIfElseIv) IF LPAREN ConditionIf:cif Matched ElseStatement Matched
+			|
+			(MatchedWhileIv) WHILE LPAREN Condition:cwhile RPAREN InWhile Matched OutWhile
+			|
+			(MatchedBreakIv) BREAK SEMI
+			|
+			(MatchedContinueIv) CONTINUE SEMI
+			|
+			(MatchedReturnIv) RETURN ExprOrEps SEMI
+			|
+			(MatchedReadIv) READ LPAREN Designator:des RPAREN SEMI
+			|
+			(MatchedPrintIv) PRINT LPAREN Expr:ex RPAREN SEMI
+			|
+			(MatchedPrintNumberIv) PRINT LPAREN Expr:ex COMMA NUMBER:printNumber RPAREN SEMI
+			|
+			(MatchedForeachIv) Designator:des DOT FOREACH LPAREN IDENT:foreachIdent ARROW InForeach Statement OutForeach RPAREN SEMI
+			|
+			(MatchedStatementsIv) LBRACE Statements RBRACE
+			|
+			(MatchedFindAnyIv) Designator:des1 EQUAL Designator:des2 DOT FINDANY LPAREN Expr:ex RPAREN SEMI
+			|
+			(MatchedFindAndReplaceIv) Designator:des1 EQUAL Designator:des2 DOT FINDANDREPLACE LPAREN Expr:expr1 COMMA IDENT:findAndReplaceIdent ARROW Expr:expr2 RPAREN SEMI
+			;
+			
+InForeach ::=(InForeachIv);
+OutForeach ::=(OutForeachIv);
+InWhile ::=(InWhileIv);
+OutWhile ::=(OutWhileIv);
+
+Statements ::= (StatementsIv) Statements Statement
+			|
+			(NoStatementsIv) /* epsilon */
+			;
+			
+ExprOrEps ::= (ExprOrEpsIv) Expr:ex
+			|
+			(NoExprOrEpsIv) /* epsilon */
+			;
+
+ElseStatement ::= (ElseStatementIv) ELSE Statement;
+
+ConditionIf ::= (ConditionIfIv) Condition:c RPAREN
+			|
+			(ErrorCondIfIv) error RPAREN:l
+			{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravnog logickog izraza kod if do ) u liniji " + lleft, null);  :}
+			;
+			
+DesignatorStatement ::= (DesignEqualIv) DesignatorEqualStatement
+			|
+			(DesignaLActRIv) Designator:des LPAREN DesignAct KrajPozivaMetode RPAREN SEMI
+			|
+			(DesignPlusPlusIv) Designator:des PLUSPLUS SEMI
+			|
+			(DesignMinusMinusIv) Designator:des MINUSMINUS SEMI
+			;
+
+DesignatorEqualStatement ::= (DesignatorEqualExprIv) Designator:designator EQUAL Expr:expr SEMI
+			|
+			(ErrorEqualIv) error SEMI:l
+			{: parser.report_error("Izvrsen OPORAVAK od greske zbog neispravne jednakosti do ; u liniji " + lleft, null);  :}
+			;
+
+KrajPozivaMetode::= (KrajPozivaIv);
+
+DesignAct ::= (DesignActIv) ActPars
+			|
+			(NoDesignActIv) /* epsilon */
+			;
+
+Type ::= (TypeIv) IDENT:typeName;
+			   
+ActPars ::= (ActParsIv) ActOne
+			| 
+			(ActParsMoreIv) ActPars COMMA ActOne;
+
+ActOne::= (ActOneIv) Expr:ex;
+
+Condition ::= (ConditionIv) Condition:c PIPEPIPE CondTerm:ct
+			|
+			(CondtitionTermIv) CondTerm:ctterm;
+
+CondTerm ::= (CondTermIv) CondTerm:ct AMPAMP CondFact:cf
+			|
+			(CondTermFactIv) CondFact:cfact;
+
+CondFact ::= (CondFactIv) Expr:exp
+			|
+			(CondFactRelopIv) Expr:ex Relop Expr:e
+			;
+			
+Expr ::= (ExprMinusIv) MINUS Term:te
+			|
+			(ExprNoMinusIv) Term:t
+			|
+			(ExprAddopIv) Expr:eks Addop Term:ter
+			;
+	
+Term ::= (TermIv) Factor:fa
+			|
+			(TermMulopIv) Term:te Mulop Factor:fac;
+
+			
+Factor ::= (FactorDesignCall) Designator:des LPAREN FactorDesignAct KrajPozivaMetode RPAREN
+			|
+			(FactorDesign) Designator:des
+			|
+			(FactorNum) NUMBER:numberFactor
+			|
+			(FactorChar) CHAR:charFactor
+			|
+			(FactorBool) BOOL:boolFactor
+			|
+			(FactorNew) NEW Type:newType LBRACK Expr:ex RBRACK
+			|
+			(FactorExpr) LPAREN Expr:ex RPAREN
+			;
+
+FactorDesignAct ::= (FactorAct) ActPars
+			|
+			(NoFactorAct) /* epsilon */
+			;
+			
+Designator ::=  (DesignatorIv) IDENT:designatorIdent DesList;
+
+DesList ::= (DesListExprIv) LBRACK Expr:ex RBRACK
+			|
+			(NoDesListExprIv) /* epsilon */
+			;
+			
+
+			
+Relop ::= (EqualEqualIv) EQUALEQUAL
+			|
+			(NotEqualIv) NOTEQUAL
+			|
+			(GreaterIv) GREATER
+			|
+			(GreateEqualIv) GREATEREQUAL
+			|
+			(LessIv) LESS
+			|
+			(LessEqualIv) LESSEQUAL
+			;
+			
+Addop ::= (PlusIv) PLUS
+			|
+			(MinusIv) MINUS
+			;
+
+Mulop ::= (MulIv) MUL
+			|
+			(DivIv) DIV
+			|
+			(ModIv) MOD
+			;
+

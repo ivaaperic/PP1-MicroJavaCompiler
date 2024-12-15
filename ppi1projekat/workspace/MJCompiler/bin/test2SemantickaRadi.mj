@@ -1,0 +1,37 @@
+program testProgram
+	const char c = 'c', b = 'b';
+	const int abc = 10;
+	const bool t = true;
+	int a;
+	int p[];
+	char ad[], ba[];
+{
+		
+		void main ()
+		int nes;
+		bool z;
+		char rec[];
+		{
+		
+		p = new int[10];
+		z = t;
+		
+		p = new int[5];
+		
+		p[0] = abc;
+		p[1] = 11;
+		p[2] = 12;
+		p[3] = 10 + p[p[1] - 10] * 10 + ( -10 - p[0] / 10);
+		
+		read(p[4]);
+		
+		
+		a++;
+		nes--;
+		
+		print(a);
+		print(nes);
+		print(c);
+		
+		}
+}

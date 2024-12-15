@@ -1,0 +1,17 @@
+//Oporavak od pogresne deklaracije i dodele vrednosti
+
+program testParser
+	const int x=5; 
+	int y, a[], b = 5;
+	char ch;
+{
+	void main() {		
+		
+		a = -;
+		
+		return 1;
+		
+	}
+}
+
+

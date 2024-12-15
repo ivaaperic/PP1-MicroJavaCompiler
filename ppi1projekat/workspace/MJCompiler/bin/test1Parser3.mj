@@ -1,0 +1,18 @@
+// Greska kod formalnog parametra metode i greska kod if uslova
+
+program testParser
+	const int x = 5; 
+	int a[];
+	char ch;
+
+{
+	int k(int m=3, int f) int mj;{
+		if(m=2) return true;
+	}
+	void main() {		
+		
+		a = new int[100];
+		
+		print(a[0]);
+	}
+}

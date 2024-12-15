@@ -1,0 +1,20 @@
+//nedeklarisana promenljiva
+
+program testProgram
+	const char c = 'c', b = 'b';
+	const int abc = 10;
+	const bool t = true;
+	int a;
+	int p[];
+	char ad[], ba[];
+{
+		
+		void main ()
+		{
+		
+		aa = 5;		
+		
+		print(a);
+		
+		}
+}

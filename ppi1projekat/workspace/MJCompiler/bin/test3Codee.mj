@@ -1,0 +1,33 @@
+//rad sa nizovima i svim tipovima podataka
+
+	program testProgram
+	const int nula = 0;
+	int y;
+{
+	void main()	
+	int a;
+	int x[];
+	char c[];
+	bool b[];
+	{
+		x = new int[10];
+		c = new char[5];
+		b = new bool[3];
+
+		x[0] = 5;
+		x[1] = 1;
+		x[x[1] + 1] = 10 + x[0] * x[1-1];
+		
+		c[0] = 'c';
+		b[0] = true;
+		
+		print(x[0]);
+		print(x[1]);
+		print(x[2]);
+		
+		print(c[0]);
+		print(b[0]);
+			
+		return;
+	}
+}

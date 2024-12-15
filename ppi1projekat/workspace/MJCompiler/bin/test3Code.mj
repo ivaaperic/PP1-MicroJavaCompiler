@@ -1,0 +1,52 @@
+//provera rada promenljivih sa svim operacijama
+
+program testProgram
+	const int nula = 0;
+	const int jedan = 1;
+	const char pet = 'p';
+	int y;
+{
+	void main()	
+	int x;
+	int z, a, b, c;
+	char d;
+	bool bo;
+	{
+		x = -10;
+		bo = true;
+		d = 'a';
+		z = x + 1;
+		z++;
+		y = 392;
+	
+		a = 10 * 2;
+		b = a / 3;
+		c = a % 3;
+	
+		x = 10 + (a + 9) / c * a - 1;
+		a--;
+		
+		print(1);
+	
+		print(d);
+		print(a);
+		print(b);
+		print(c);
+					
+		read(x);
+		read(d);
+					
+		print(x);
+		print(z);
+		print(-5*(2+3));
+		print(y);
+		
+		print(nula);
+		print(pet);
+		
+		print(bo);
+		
+					
+		return;
+	}
+}

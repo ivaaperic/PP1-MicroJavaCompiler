@@ -1,0 +1,16 @@
+// Fali ;
+
+program testParser
+	const int x = 5; 
+	int a[];
+	char ch;
+
+
+{
+	void main() {		
+		
+		a = new int[100]
+		
+		print(a[0]);
+	}
+}

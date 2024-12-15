@@ -1,0 +1,43 @@
+program MJProgram
+	int x[],m[]; const int s=3;
+{
+
+	bool k (int iva, bool mama)  int c,l; bool bla[]; char p; {
+		c = 2 + x[2];
+		x=bla.findAndReplace(2,mama=>3);
+		print(3+2*2+4);
+		
+		x.foreach(iva=>{print(2); continue;});
+		read(bla[3]);
+		ord(p);
+		chr(2);
+		len(x);
+		bla[3]=false;
+		return bla[1];
+	}
+
+	void main()int f; bool fr[];{
+		print(3+4);
+		f = x[2];
+		while(2 && fr){
+			x[2]=3;
+			while(fr[2]==false){
+				x.foreach(f=>{print(2); break;});
+				break;
+			}
+			break;
+		}
+		if(f>x[2]){
+			print(2);
+		} else{
+			x[2]=3;
+		}
+		//continue;
+		print(f+2);
+		
+		//k(2,4,4,6);
+		k(x[2],fr[1]);
+		main();
+		
+	}
+}

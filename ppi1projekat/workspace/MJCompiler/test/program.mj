@@ -1,0 +1,24 @@
+program MJProgram
+	int x; int niz[], f[];
+{
+
+	int k () int c; {
+		c = 2;
+		
+		print(0);
+		
+		return c+2;
+	}
+
+	void main() bool br; char j[];{
+		niz = new int[3];
+		niz[0]=1;
+		niz[1]=2;
+		niz[2]=3;
+		//221 ako trazi 2
+		//322 ako trazi 3
+		//expr,  adr  ,index 
+		br=niz.findAny(3);
+		print(br);
+	}
+}
